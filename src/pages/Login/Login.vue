@@ -1,6 +1,6 @@
 <template>
     <div style="padding-top: 15%">
-        <b-container >
+        <b-container class="content">
             <b-row>
                 <b-col md="3"/>
                 <b-col md="6">
@@ -44,7 +44,7 @@
                                 密码不能为空
                             </b-form-invalid-feedback>
                             <br/>
-                            <b-button @click="submitlog" variant="success" class="subReg" style="">登录</b-button>
+                            <b-button @click="login" variant="success" class="subReg" style="">登录</b-button>
                             <b-button class="subReg" variant="success" style="float: right">注册</b-button>
                         </b-form-group>
                     </b-form>
@@ -58,6 +58,8 @@
 
 <script>
 
+    import {login} from "../../api/api";
+    import {mapMutations,mapGetters} from 'vuex'
     export default {
         name: "Login",
         data(){
@@ -65,7 +67,7 @@
                 log:{
                     account:'',
                     password:''
-                }
+                },
             }
         },
         computed:{
@@ -83,7 +85,8 @@
             //验证密码
             checkPsw(){
                 return this.log.password.length>0
-            }
+            },
+            ...mapGetters(['token'])
         },
         methods:{
             //判断是否是整数
@@ -93,29 +96,54 @@
                     return false
                 }else return true
             },
-            submitlog(){
-                if (this.actState&&this.checkPsw){
-                    //请求
-                    console.log("登录成功")
-                }
-
+            login () {
+                this.$axios.post(login, {
+                    'sid': this.log.account,
+                    'password': this.log.password
+                }).then(res => {
+                    if (res.token) {
+                        this.$message.success('登陆成功')
+                        localStorage.setItem({'Token': res.token})
+                        this.setToken(res.token)
+                        console.log(res.token)
+                        this.$router.push({
+                            path: '/Main'
+                        })
+                    } else {
+                        this.$message.error('登陆失败，账号有误')
+                    }
+                }).catch(error => {
+                    this.$message.error('登陆失败' + error)
+                })
+            },
+            ...mapMutations({
+                setToken:'SET_TOKEN'
+            }),
+        },
+        created() {
+            let token = localStorage.getItem("token")
+            if (token){
+                this.$router.push({
+                    path: '/Main'
+                })
             }
-        }
+        },
     }
 </script>
 
 <style scoped>
 
-#login{
-    border: 1px solid brown;
-    padding: 20px 50px 20px 50px;
-}
-.subReg{
-    width: 30%;
-    color: #e2ff6f;
-    font-family: 幼圆;
-    font-size: large;
-    padding: 10px 10px;
+    #login{
+        border: 1px solid brown;
+        padding: 20px 50px 20px 50px;
+    }
+    .subReg{
+        width: 30%;
+        color: #e2ff6f;
+        font-family: 幼圆;
+        font-size: large;
+        padding: 10px 10px;
+    }
 
-}
+
 </style>

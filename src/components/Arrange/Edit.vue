@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <div>编辑</div>
   </div>
 </template>
 
@@ -16,6 +17,6 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped >
 
 </style>
